@@ -11,6 +11,11 @@ echo -n "Enter number: "
 read -r number
 
 if [[ "$number" == 1 ]]; then
+    echo "Installing tools"
+    sudo apt update && sudo apt upgrade && sudo apt install ufw -y
+    echo "Opening port"
+    sudo ufw allow 2053
+    sudo ufw enable
 	echo "Installing ssh config"
     cat << EOF > "/etc/ssh/sshd_config"
 Include /etc/ssh/sshd_config.d/*.conf
@@ -43,8 +48,9 @@ AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 EOF
 
-sudo systemctl restart ssh
-sudo systemctl status ssh
+systemctl disable --now ssh.socket 2>/dev/null || true
+systemctl enable ssh.service
+systemctl restart ssh.service
 echo "SSH CONFIG INSTALLED"
 elif [[ "$number" == 0 ]]; then
 	echo "Bye!"
